@@ -51,13 +51,13 @@
 
       <article class="work-item">
         <div class="work-media">
-          <img src="images/work-1.png" alt="Content Credentials in Adobe tools" loading="lazy">
-          <span class="tag" aria-hidden="true">
+          <img src="images/work-1- Cr.png" alt="Content Credentials in Adobe tools" loading="lazy">
+          <span class="tag">
             <svg viewBox="0 0 24 24" width="12" height="12">
               <circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.6 2.2"/>
               <path d="M7.5 12.3l3 3 6-6.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            PROVENANCE: DOCUMENTED
+            <span class="tag-label"></span>
           </span>
         </div>
         <div class="work-copy">
@@ -68,13 +68,13 @@
 
       <article class="work-item">
         <div class="work-media">
-          <img src="images/work-2.png" alt="Provenance in social contexts" loading="lazy">
-          <span class="tag" aria-hidden="true">
+          <img src="images/work-2- Cr.png" alt="Provenance in social contexts" loading="lazy">
+          <span class="tag">
             <svg viewBox="0 0 24 24" width="12" height="12">
               <circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.6 2.2"/>
               <path d="M7.5 12.3l3 3 6-6.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            PROVENANCE: DOCUMENTED
+            <span class="tag-label"></span>
           </span>
         </div>
         <div class="work-copy">
@@ -85,13 +85,13 @@
 
       <article class="work-item">
         <div class="work-media">
-          <img src="images/work-3.png" alt="Standards and UX alignment" loading="lazy">
-          <span class="tag" aria-hidden="true">
+          <img src="images/work-3- Cr.png" alt="Standards and UX alignment" loading="lazy">
+          <span class="tag">
             <svg viewBox="0 0 24 24" width="12" height="12">
               <circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.6 2.2"/>
               <path d="M7.5 12.3l3 3 6-6.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            PROVENANCE: DOCUMENTED
+            <span class="tag-label"></span>
           </span>
         </div>
         <div class="work-copy">
@@ -121,7 +121,7 @@
         <span class="year">2024</span>
         <ul>
           <li><a href="https://contentauthenticity.org/blog/event-recap-ux-best-practices-for-expressing-provenance">UX Best Practices for Expressing Provenance</a></li>
-          <li><a href="https://www.adobe.com/max/2024/sessions/take-control-of-your-work-with-content-credentials-s6402.html">Sign Your Work with Adobe Content Authenticity</a></li>
+          <li><a href="https://www.adobe.com/max/2024/sessions/take-control-of-your-work-with-content- Credentials-s6402.html">Sign Your Work with Adobe Content Authenticity</a></li>
           <li><a href="https://contentauthenticity.org/blog/cai-events-september-2024">CAI UX Working Session</a></li>
         </ul>
       </div>
@@ -181,6 +181,48 @@
 <script>
   document.getElementById('verified-date').textContent =
     'Last verified ' + new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+</script>
+
+<!-- ===== C2PA Content Credentials check ===== -->
+<!-- Reads real embedded C2PA manifests from each work image and only shows -->
+<!-- the tag when genuine provenance data is present. No manifest = no tag. -->
+<script type="module">
+  import { createC2pa } from 'https://cdn.jsdelivr.net/npm/@contentauth/c2pa-web@latest/+esm';
+
+  async function checkImage(imgEl) {
+    try {
+      const c2pa = await createC2pa({
+        wasmSrc: 'https://cdn.jsdelivr.net/npm/@contentauth/c2pa-web@latest/dist/resources/c2pa_bg.wasm'
+      });
+
+      const response = await fetch(imgEl.src);
+      const blob = await response.blob();
+      const reader = await c2pa.reader.fromBlob(blob.type, blob);
+      const manifestStore = await reader.manifestStore();
+
+      const tag = imgEl.closest('.work-media')?.querySelector('.tag');
+      if (!tag) return;
+
+      if (manifestStore?.activeManifest) {
+        const manifest = manifestStore.activeManifest;
+        const generator = manifest.claimGeneratorInfo?.[0]?.name || 'Content Credentials';
+        const label = tag.querySelector('.tag-label');
+        if (label) label.textContent = `SIGNED — ${generator}`;
+        tag.classList.add('tag-visible');
+        tag.removeAttribute('aria-hidden');
+      } else {
+        // No manifest found — remove the tag from the page entirely,
+        // rather than just hiding it, since there's nothing true to show.
+        tag.remove();
+      }
+    } catch (err) {
+      console.warn('C2PA check failed for', imgEl.src, err);
+      const tag = imgEl.closest('.work-media')?.querySelector('.tag');
+      if (tag) tag.remove();
+    }
+  }
+
+  document.querySelectorAll('.work-media img').forEach(checkImage);
 </script>
 
 </body>

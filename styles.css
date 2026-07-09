@@ -146,15 +146,16 @@ a:focus-visible, button:focus-visible {
   letter-spacing: 0.06em;
   padding: 4px 8px 4px 6px;
   border-radius: 20px;
+  /* Hidden until the C2PA check confirms real credentials and adds
+     the "tag-visible" class via JS. No manifest = stays hidden. */
   opacity: 0;
-  transform: translateY(4px);
-  transition: opacity .2s ease, transform .2s ease;
+  visibility: hidden;
+  transition: opacity .2s ease;
 }
 
-.work-item:hover .tag,
-.work-item:focus-within .tag {
+.work-media .tag.tag-visible {
   opacity: 1;
-  transform: translateY(0);
+  visibility: visible;
 }
 
 .work-copy h3 {
