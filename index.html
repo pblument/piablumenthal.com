@@ -200,6 +200,13 @@
       const reader = await c2pa.reader.fromBlob(blob.type, blob);
       const manifestStore = await reader.manifestStore();
 
+      // Debug: log the raw object so we can see its real shape and confirm
+      // we're reading the right property name.
+      console.log(`🔍 Raw manifestStore for ${imgEl.src}:`, manifestStore);
+      try {
+        console.log(`🔍 manifestStore keys:`, Object.keys(manifestStore || {}));
+      } catch (e) {}
+
       const tag = imgEl.closest('.work-media')?.querySelector('.tag');
 
       if (manifestStore?.activeManifest) {
