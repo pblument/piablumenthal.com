@@ -201,22 +201,24 @@
       const manifestStore = await reader.manifestStore();
 
       const tag = imgEl.closest('.work-media')?.querySelector('.tag');
-      if (!tag) return;
 
       if (manifestStore?.activeManifest) {
         const manifest = manifestStore.activeManifest;
         const generator = manifest.claimGeneratorInfo?.[0]?.name || 'Content Credentials';
+        console.log(`✅ C2PA manifest FOUND for ${imgEl.src} — signed by: ${generator}`, manifest);
+        if (!tag) return;
         const label = tag.querySelector('.tag-label');
         if (label) label.textContent = `SIGNED — ${generator}`;
         tag.classList.add('tag-visible');
         tag.removeAttribute('aria-hidden');
       } else {
+        console.log(`❌ No C2PA manifest found for ${imgEl.src}`);
         // No manifest found — remove the tag from the page entirely,
         // rather than just hiding it, since there's nothing true to show.
-        tag.remove();
+        if (tag) tag.remove();
       }
     } catch (err) {
-      console.warn('C2PA check failed for', imgEl.src, err);
+      console.error(`⚠️ C2PA CHECK ERRORED for ${imgEl.src} — this is a script/network problem, not a "no manifest" result:`, err);
       const tag = imgEl.closest('.work-media')?.querySelector('.tag');
       if (tag) tag.remove();
     }
