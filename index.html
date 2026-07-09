@@ -24,17 +24,8 @@
 
   <!-- ===== Header ===== -->
   <header class="site-header">
-    <div class="eyebrow">
-      <span class="badge" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="16" height="16">
-          <circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.6 2.2"/>
-          <path d="M7.5 12.3l3 3 6-6.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-      VERIFIED PROFILE — PIA BLUMENTHAL
-    </div>
 
-    <h1 class="headline">Hi, I&rsquo;m Pia. I design systems that make digital&nbsp;content more transparent and trustworthy.</h1>
+    <h1 class="headline">Hi, I'm Pia. I design systems that make digital content more transparent and trustworthy.</h1>
 
     <div class="lede">
       <p>Trust in digital content depends on systems people can understand.</p>
@@ -166,13 +157,7 @@
     </div>
 
     <p class="stamp">
-      <span class="badge" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="13" height="13">
-          <circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.6 2.2"/>
-          <path d="M7.5 12.3l3 3 6-6.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-      <span id="verified-date">Last verified —</span>
+      <span id="verified-date">Viewed on —</span>
     </p>
   </footer>
 
@@ -180,7 +165,7 @@
 
 <script>
   document.getElementById('verified-date').textContent =
-    'Last verified ' + new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    'Viewed on ' + new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 </script>
 
 <!-- ===== C2PA Content Credentials check ===== -->
@@ -188,29 +173,29 @@
 <!-- the tag when genuine provenance data is present. No manifest = no tag. -->
 <script type="module">
   import { createC2pa } from 'https://cdn.jsdelivr.net/npm/@contentauth/c2pa-web@latest/+esm';
-
+ 
   async function checkImage(imgEl) {
     try {
       const c2pa = await createC2pa({
         wasmSrc: 'https://cdn.jsdelivr.net/npm/@contentauth/c2pa-web@latest/dist/resources/c2pa_bg.wasm'
       });
-
+ 
       const response = await fetch(imgEl.src);
       const blob = await response.blob();
       const reader = await c2pa.reader.fromBlob(blob.type, blob);
       const manifestStore = await reader.manifestStore();
-
+ 
       // Debug: log the raw object so we can see its real shape and confirm
       // we're reading the right property name.
       console.log(`🔍 Raw manifestStore for ${imgEl.src}:`, manifestStore);
-
+ 
       const tag = imgEl.closest('.work-media')?.querySelector('.tag');
-
+ 
       // The library returns snake_case keys: active_manifest is a manifest
       // ID string, and the actual manifest object lives in manifests[id].
       const activeId = manifestStore?.active_manifest;
       const manifest = activeId ? manifestStore.manifests?.[activeId] : null;
-
+ 
       if (manifest) {
         const generator =
           manifest.claim_generator_info?.[0]?.name ||
@@ -220,7 +205,7 @@
         console.log(`✅ C2PA manifest FOUND for ${imgEl.src} — signed by: ${generator} (${validState})`, manifest);
         if (!tag) return;
         const label = tag.querySelector('.tag-label');
-        if (label) label.textContent = `SIGNED — ${generator}`;
+        if (label) label.textContent = `Signed by ${generator}`;
         tag.classList.add('tag-visible');
         tag.removeAttribute('aria-hidden');
       } else {
@@ -233,7 +218,7 @@
       if (tag) tag.remove();
     }
   }
-
+ 
   document.querySelectorAll('.work-media img').forEach(checkImage);
 </script>
 
