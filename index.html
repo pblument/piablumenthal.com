@@ -191,6 +191,15 @@
           'Content Credentials';
         const validState = manifestStore.validation_state;
         console.log(`✅ C2PA manifest FOUND for ${imgEl.src} — signed by: ${generator} (${validState})`, manifest);
+
+        // Debug: log assertions specifically, since creator/producer identity
+        // (name, connected social accounts) lives in here if present.
+        console.log(`🔍 Full manifest object for ${imgEl.src}:`, manifest);
+        console.log(`🔍 manifest keys:`, Object.keys(manifest || {}));
+        if (manifest.assertions) {
+          console.log(`🔍 manifest.assertions for ${imgEl.src}:`, manifest.assertions);
+        }
+
         if (!tag) return;
         const label = tag.querySelector('.tag-label');
         if (label) label.textContent = `Signed by ${generator}`;
