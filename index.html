@@ -203,16 +203,21 @@
       // Debug: log the raw object so we can see its real shape and confirm
       // we're reading the right property name.
       console.log(`🔍 Raw manifestStore for ${imgEl.src}:`, manifestStore);
-      try {
-        console.log(`🔍 manifestStore keys:`, Object.keys(manifestStore || {}));
-      } catch (e) {}
 
       const tag = imgEl.closest('.work-media')?.querySelector('.tag');
 
-      if (manifestStore?.activeManifest) {
-        const manifest = manifestStore.activeManifest;
-        const generator = manifest.claimGeneratorInfo?.[0]?.name || 'Content Credentials';
-        console.log(`✅ C2PA manifest FOUND for ${imgEl.src} — signed by: ${generator}`, manifest);
+      // The library returns snake_case keys: active_manifest is a manifest
+      // ID string, and the actual manifest object lives in manifests[id].
+      const activeId = manifestStore?.active_manifest;
+      const manifest = activeId ? manifestStore.manifests?.[activeId] : null;
+
+      if (manifest) {
+        const generator =
+          manifest.claim_generator_info?.[0]?.name ||
+          manifest.claim_generator ||
+          'Content Credentials';
+        const validState = manifestStore.validation_state;
+        console.log(`✅ C2PA manifest FOUND for ${imgEl.src} — signed by: ${generator} (${validState})`, manifest);
         if (!tag) return;
         const label = tag.querySelector('.tag-label');
         if (label) label.textContent = `SIGNED — ${generator}`;
@@ -220,8 +225,6 @@
         tag.removeAttribute('aria-hidden');
       } else {
         console.log(`❌ No C2PA manifest found for ${imgEl.src}`);
-        // No manifest found — remove the tag from the page entirely,
-        // rather than just hiding it, since there's nothing true to show.
         if (tag) tag.remove();
       }
     } catch (err) {
